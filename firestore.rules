@@ -1,0 +1,88 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: orders
+    // Document ID: orderId (e.g., 'RC1024', auto-generated ID)
+    // Fields:
+    //   - id: string (optional) - order reference identifier
+    //   - orderNumber: int / number (optional) - reference order number
+    //   - createdAt: string / timestamp (optional) - ISO order creation timestamp
+    //   - formattedDate: string (optional) - readable date display
+    //   - userId: string / null (optional) - Firebase Auth UID of the customer if signed in
+    //   - userEmail: string (optional) - customer email address
+    //   - customer: map (required) - recipient details (name, email, phone, city, address)
+    //   - items: list (required) - items purchased
+    //   - subtotal: number (optional) - order subtotal
+    //   - deliveryFee: number (optional) - delivery charges
+    //   - discount: number (optional) - promotional discount
+    //   - totalAmount: number (optional) - grand total amount
+    //   - paymentMethod: string (optional) - payment method ('COD', 'UPI', etc.)
+    //   - paymentStatus: string (optional) - payment status ('Pending', 'Paid')
+    //   - orderStatus: string (optional) - fulfillment status ('Processing', 'Delivered', etc.)
+    //
+    // All other collections (products, customers, enquiries, site_settings, etc.)
+    // are NOT stored in Firestore and all access to them is explicitly denied.
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if request is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if request is from an authorized administrator
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == "admin@ruchicreation.com" ||
+        request.auth.token.email == "ruchirandar16@gmail.com" ||
+        request.auth.token.admin == true
+      );
+    }
+
+    // ===============================================================
+    // Orders Collection Rules
+    // ===============================================================
+    match /orders/{orderId} {
+      // 1. Order Creation:
+      // Allow checkout creation for all customers (authenticated users or guests)
+      allow create: if true;
+
+      // 2. Order Read:
+      // Allow read if authenticated and user is admin, or is the owner of the order
+      // (matched by userId or userEmail)
+      allow read: if request.auth != null && (
+        request.auth.token.email == "admin@ruchicreation.com" ||
+        request.auth.token.email == "ruchirandar16@gmail.com" ||
+        request.auth.token.admin == true ||
+        resource.data.userId == request.auth.uid ||
+        resource.data.userEmail == request.auth.token.email
+      );
+
+      // 3. Order Update and Delete:
+      // Strictly restricted to authorized administrators
+      allow update, delete: if request.auth != null && (
+        request.auth.token.email == "admin@ruchicreation.com" ||
+        request.auth.token.email == "ruchirandar16@gmail.com" ||
+        request.auth.token.admin == true
+      );
+    }
+
+    // ===============================================================
+    // Default Deny Rule
+    // ===============================================================
+    // All other collections and paths are strictly blocked from read and write operations.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
