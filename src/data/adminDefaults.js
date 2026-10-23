@@ -195,7 +195,8 @@ export const DEFAULT_HOME_SECTIONS = {
       { id: 3, name: "Mehendi Gifts", image: "/reference-assets/cat-mehendi.jpg" },
       { id: 4, name: "Diwali Gifts", image: "/reference-assets/cat-diwali.jpg" },
       { id: 5, name: "Rakshabandhan Gifts", image: "/reference-assets/cat-rakshabandhan.jpg" },
-      { id: 6, name: "Pooja Products", image: "/reference-assets/cat-pooja.jpg" }
+      { id: 6, name: "Pooja Products", image: "/reference-assets/cat-pooja.jpg" },
+      { id: 7, name: "Customize Gifts", image: "/reference-assets/customize-home.jpg" }
     ],
     enabled: true
   },
@@ -240,6 +241,7 @@ export const DEFAULT_MEDIA_ITEMS = [
   { id: "m-cat-diwali", name: "Category: Diwali Gifts", url: "/reference-assets/cat-diwali.jpg", category: "Categories", dimensions: "600x600" },
   { id: "m-cat-rakhi", name: "Category: Rakshabandhan Gifts", url: "/reference-assets/cat-rakshabandhan.jpg", category: "Categories", dimensions: "600x600" },
   { id: "m-cat-pooja", name: "Category: Pooja Products", url: "/reference-assets/cat-pooja.jpg", category: "Categories", dimensions: "600x600" },
+  { id: "m-cat-customize", name: "Category: Customize Gifts", url: "/reference-assets/customize-home.jpg", category: "Categories", dimensions: "600x600" },
   { id: "m-prod-mug", name: "Product: Gold-Rim Photo Mug", url: "/reference-assets/detail-mug.jpg", category: "Products", dimensions: "800x800" },
   { id: "m-prod-bouquet", name: "Product: Rose Bouquet", url: "/reference-assets/prod-fresh-bouquet.jpg", category: "Products", dimensions: "800x800" },
   { id: "m-prod-hamper", name: "Product: Gourmet Hamper", url: "/reference-assets/prod-gift-hamper.jpg", category: "Products", dimensions: "800x800" },

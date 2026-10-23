@@ -11,6 +11,7 @@ export const ProductGallery = () => {
   const filterTabs = [
     "All",
     ...new Set([
+      "Customize Gifts",
       "Wedding Gifts",
       "Birthday Gifts",
       "Mehendi Gifts",
@@ -33,7 +34,16 @@ export const ProductGallery = () => {
 
   const filteredItems = activeFilter === "All"
     ? galleryItems
-    : galleryItems.filter((item) => item.category === activeFilter);
+    : galleryItems.filter((item) => {
+        if (item.category === activeFilter) return true;
+        if (
+          (activeFilter === "Customize Gifts" || activeFilter === "Customize Gift") &&
+          (item.category === "Customize Gifts" || item.category === "Customize Gift" || (item.category || "").toLowerCase().includes("custom") || item.isCustomizable)
+        ) {
+          return true;
+        }
+        return false;
+      });
 
   return (
     <div

@@ -106,6 +106,7 @@ export const Home = () => {
   const featuredSec = homeSections?.featuredProducts || {};
 
   const categories = categorySec.categories || [
+    { name: "Customize Gifts", image: "/reference-assets/customize-home.jpg" },
     { name: "Wedding Gifts", image: "/reference-assets/cat-wedding.jpg" },
     { name: "Birthday Gifts", image: "/reference-assets/cat-birthday.jpg" },
     { name: "Mehendi Gifts", image: "/reference-assets/cat-mehendi.jpg" },

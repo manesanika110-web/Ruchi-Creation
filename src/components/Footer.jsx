@@ -127,6 +127,11 @@ export const Footer = () => {
             </h4>
             <ul className="space-y-2 text-xs text-[#E8CCD5]">
               <li>
+                <Link to="/customize-gifts" className="hover:text-white transition-colors flex items-center gap-1.5">
+                  <span className="text-[10px] text-[#CD97A5]">›</span> Customize Gifts
+                </Link>
+              </li>
+              <li>
                 <Link to="/shop-by-category?category=Wedding%20Gifts" className="hover:text-white transition-colors flex items-center gap-1.5">
                   <span className="text-[10px] text-[#CD97A5]">›</span> Wedding Gifts
                 </Link>

@@ -9,14 +9,24 @@ import {
   Upload, 
   Check, 
   Building, 
-  ShieldCheck 
+  ShieldCheck,
+  Cloud,
+  CheckCircle2
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
+import { getCloudinaryConfig, setCloudinaryConfig } from "../../services/imageStorage";
 
 export const AdminContent = () => {
   const { settings, updateSettings, addMediaItem } = useApp();
 
-  const [formData, setFormData] = useState({ ...settings });
+  const [formData, setFormData] = useState(() => {
+    const cloudCfg = getCloudinaryConfig();
+    return {
+      ...settings,
+      cloudinaryCloudName: settings.cloudinaryCloudName || cloudCfg.cloudName || "",
+      cloudinaryUploadPreset: settings.cloudinaryUploadPreset || cloudCfg.uploadPreset || ""
+    };
+  });
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   const handleInputChange = (e) => {
@@ -44,6 +54,10 @@ export const AdminContent = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     updateSettings(formData);
+    setCloudinaryConfig({
+      cloudName: formData.cloudinaryCloudName,
+      uploadPreset: formData.cloudinaryUploadPreset
+    });
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3000);
   };
@@ -296,7 +310,57 @@ export const AdminContent = () => {
           </div>
         </div>
 
-        {/* 4. Security & Admin Credentials */}
+        {/* 4. Cloud Image Storage (Cloudinary & Firebase Storage) */}
+        <div className="bg-[#240B13] rounded-3xl p-6 border border-[#4D1B28] shadow-md space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-[#3E1421] pb-3">
+            <h2 className="font-serif font-bold text-base text-[#FAF5EB] flex items-center gap-2">
+              <Cloud className="w-4 h-4 text-[#CD97A5]" />
+              <span>Persistent Product Image Storage (Cloudinary & Firebase)</span>
+            </h2>
+            <span className="text-[10px] bg-emerald-950/80 border border-emerald-600/50 text-emerald-400 font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 self-start sm:self-auto">
+              <CheckCircle2 className="w-3 h-3" />
+              <span>Persistent Storage Active</span>
+            </span>
+          </div>
+
+          <p className="text-xs text-[#D4B8C1]">
+            Product images uploaded in the Admin Dashboard are persistently stored and linked in Firebase Firestore, appearing in the storefront in real time without refreshing.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-[#E5DAC8] mb-1.5">
+                Cloudinary Cloud Name (Optional)
+              </label>
+              <input
+                type="text"
+                name="cloudinaryCloudName"
+                value={formData.cloudinaryCloudName || ""}
+                onChange={handleInputChange}
+                placeholder="e.g. dxym7qabc"
+                className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#1A070E] border border-[#4D1B28] text-white focus:outline-none focus:ring-1 focus:ring-[#8E3E53]"
+              />
+              <span className="text-[10px] text-gray-400 block mt-1">Found in your Cloudinary Dashboard.</span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#E5DAC8] mb-1.5">
+                Cloudinary Upload Preset (Unsigned)
+              </label>
+              <input
+                type="text"
+                name="cloudinaryUploadPreset"
+                value={formData.cloudinaryUploadPreset || ""}
+                onChange={handleInputChange}
+                placeholder="e.g. ruchi_products"
+                className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#1A070E] border border-[#4D1B28] text-white focus:outline-none focus:ring-1 focus:ring-[#8E3E53]"
+              />
+              <span className="text-[10px] text-gray-400 block mt-1">Configured in Cloudinary Settings → Upload → Upload Presets.</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 5. Security & Admin Credentials */}
         <div className="bg-[#240B13] rounded-3xl p-6 border border-[#4D1B28] shadow-md space-y-4">
           <h2 className="font-serif font-bold text-base text-[#FAF5EB] border-b border-[#3E1421] pb-3 flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-[#CD97A5]" />

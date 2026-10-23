@@ -7,8 +7,20 @@ export const CustomizeGifts = () => {
   const { products, addToCart, toggleWishlist, isInWishlist, animatingWishlistId, pageSettings } = useApp();
   const navigate = useNavigate();
 
-  const customizableProducts = products.filter((p) => p.isCustomizable);
-  const [selectedProduct, setSelectedProduct] = useState(customizableProducts[0] || products[0]);
+  const isCustomGift = (p) => {
+    if (!p) return false;
+    if (p.isCustomizable) return true;
+    const cat = (p.category || "").toLowerCase();
+    return cat.includes("custom");
+  };
+
+  const customizableProducts = products.filter(isCustomGift);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+
+  const selectedProduct = (selectedProductId && products.find((p) => p.id === selectedProductId))
+    || customizableProducts[0]
+    || products[0]
+    || null;
 
   // Customization Form State
   const [recipientName, setRecipientName] = useState("Best Sister Ever");
@@ -96,19 +108,19 @@ export const CustomizeGifts = () => {
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                   1. Select Gift to Customize
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  {customizableProducts.slice(0, 4).map((p) => (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-72 overflow-y-auto pr-1">
+                  {customizableProducts.map((p) => (
                     <button
                       key={p.id}
                       type="button"
-                      onClick={() => setSelectedProduct(p)}
+                      onClick={() => setSelectedProductId(p.id)}
                       className={`p-2 rounded-xl border text-left flex flex-col items-center justify-center gap-1.5 transition-all ${
                         selectedProduct?.id === p.id
                           ? "border-[#632736] bg-white ring-2 ring-[#632736]/20 shadow-sm"
                           : "border-[#E5DAC8] bg-white/70 hover:bg-white"
                       }`}
                     >
-                      <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-100 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-100 flex items-center justify-center bg-[#FAF5EB]">
                         <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
                       </div>
                       <span className="text-[11px] font-medium text-gray-800 text-center line-clamp-1">
@@ -323,7 +335,7 @@ export const CustomizeGifts = () => {
                   <div className="pt-3 mt-2 border-t border-gray-100 flex items-center gap-2">
                     <button
                       onClick={() => {
-                        setSelectedProduct(p);
+                        setSelectedProductId(p.id);
                         window.scrollTo({ top: 320, behavior: "smooth" });
                       }}
                       className="w-full py-1.5 bg-[#632736] hover:bg-[#4D1B28] text-white text-xs font-semibold rounded-full text-center transition-colors block active:scale-95"

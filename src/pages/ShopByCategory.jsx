@@ -12,6 +12,8 @@ export const ShopByCategory = () => {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
 
   const categoryThumbnails = {
+    "Customize Gifts": "/reference-assets/customize-home.jpg",
+    "Customize Gift": "/reference-assets/customize-home.jpg",
     "Wedding Gifts": "/reference-assets/cat-wedding.jpg",
     "Birthday Gifts": "/reference-assets/cat-birthday.jpg",
     "Mehendi Gifts": "/reference-assets/cat-mehendi.jpg",
@@ -37,9 +39,26 @@ export const ShopByCategory = () => {
     }
   };
 
+  const allCategories = Array.from(
+    new Set([
+      "Customize Gifts",
+      ...CATEGORIES,
+      ...products.map((p) => p.category).filter(Boolean)
+    ])
+  );
+
   const filteredProducts = selectedCategory === "All"
     ? products
-    : products.filter((p) => p.category === selectedCategory);
+    : products.filter((p) => {
+        if (p.category === selectedCategory) return true;
+        if (
+          (selectedCategory === "Customize Gifts" || selectedCategory === "Customize Gift") &&
+          (p.category === "Customize Gifts" || p.category === "Customize Gift" || (p.category || "").toLowerCase().includes("custom"))
+        ) {
+          return true;
+        }
+        return false;
+      });
 
   return (
     <div className="bg-transparent text-[#3B1822] min-h-screen">
@@ -69,7 +88,7 @@ export const ShopByCategory = () => {
             Select an Occasion Category
           </h2>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 text-center">
             {/* All button */}
             <button
               onClick={() => handleCategoryChange("All")}
@@ -87,9 +106,10 @@ export const ShopByCategory = () => {
             </button>
 
             {/* Individual categories */}
-            {CATEGORIES.map((cat) => {
+            {allCategories.map((cat) => {
               const count = products.filter((p) => p.category === cat).length;
               const isSelected = selectedCategory === cat;
+              const catThumb = categoryThumbnails[cat] || products.find((p) => p.category === cat)?.image || "/reference-assets/cat-wedding.jpg";
               return (
                 <button
                   key={cat}
@@ -102,7 +122,7 @@ export const ShopByCategory = () => {
                 >
                   <div className="w-12 h-12 rounded-xl overflow-hidden border border-[#E5DAC8] mb-1.5 flex items-center justify-center bg-white group-hover:border-[#632736]">
                     <img
-                      src={categoryThumbnails[cat]}
+                      src={catThumb}
                       alt={cat}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                     />

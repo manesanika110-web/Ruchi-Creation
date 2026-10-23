@@ -29,10 +29,21 @@ export const Shop = () => {
     window.scrollTo(0, 0);
   }, [searchParams, isCustomizeRoute, location.pathname]);
 
-  const isCustomize = category === "Customized Gifts" || isCustomizeRoute;
+  const isCustomize = category === "Customize Gifts" || category === "Customized Gifts" || category === "Customize Gift" || isCustomizeRoute;
+
+  const allCategories = Array.from(
+    new Set([
+      "Customize Gifts",
+      ...CATEGORIES,
+      ...products.map((p) => p.category).filter(Boolean)
+    ])
+  );
 
   const filteredProducts = products.filter((p) => {
-    const matchesCat = category === "All" || p.category === category || (isCustomize && p.isCustomizable);
+    const matchesCat =
+      category === "All" ||
+      p.category === category ||
+      (isCustomize && (p.isCustomizable || (p.category || "").toLowerCase().includes("custom")));
     const matchesSearch =
       !search ||
       p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -88,7 +99,7 @@ export const Shop = () => {
                 {category === "All" && <ChevronRight className="w-3.5 h-3.5" />}
               </button>
 
-              {CATEGORIES.map((cat) => (
+              {allCategories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => {

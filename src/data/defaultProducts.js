@@ -1,5 +1,6 @@
 // Exact catalog items matching the reference sheet
 export const CATEGORIES = [
+  "Customize Gifts",
   "Wedding Gifts",
   "Birthday Gifts",
   "Mehendi Gifts",
@@ -222,6 +223,279 @@ export const DEFAULT_PRODUCTS = [
       hasCustomMessage: true,
       hasPhotoUpload: false,
       colors: ["Antique Brass"]
+    }
+  },
+  {
+    id: "rc-supari-bouquet",
+    name: "Supari Customized Flower Bouquet",
+    category: "Wedding Gifts",
+    price: 899,
+    originalPrice: 1199,
+    rating: 4.9,
+    reviewsCount: 38,
+    image: "/images/Supari Custmised Flower Bouquet.png",
+    gallery: ["/images/Supari Custmised Flower Bouquet.png"],
+    description: "Exquisite handcrafted traditional Supari flower bouquet designed with auspicious betel nuts, golden beads, artificial floral blossoms, and silk ribbon wrapping. Perfect for weddings, felicitations, and traditional celebrations.",
+    stock: 25,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: true,
+      hasCustomMessage: true,
+      hasPhotoUpload: true,
+      colors: ["Royal Deep Burgundy", "Golden Red", "Emerald Green"]
+    }
+  },
+  {
+    id: "rc-pen-stand",
+    name: "Personalized Handcrafted Pen Stand",
+    category: "Birthday Gifts",
+    price: 599,
+    originalPrice: 799,
+    rating: 4.8,
+    reviewsCount: 31,
+    image: "/images/Pen Stand.jpg",
+    gallery: ["/images/Pen Stand.jpg"],
+    description: "Classic handcrafted desktop pen stand with personalized name engraving and custom title. Ideal keepsake for office desks, students, teachers, and corporate gifting.",
+    stock: 30,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: true,
+      hasCustomMessage: true,
+      hasPhotoUpload: true,
+      colors: ["Royal Deep Burgundy", "Classic Wood", "Golden Mocha"]
+    }
+  },
+  {
+    id: "rc-diwali-set-handmade",
+    name: "Handmade Diwali Gift Set",
+    category: "Diwali Gifts",
+    price: 100,
+    originalPrice: 150,
+    rating: 4.9,
+    reviewsCount: 24,
+    image: "/images/Custmised Readymade Rangoli Plate.png",
+    gallery: ["/images/Custmised Readymade Rangoli Plate.png"],
+    description: "Beautiful handmade Diwali gifts featuring decorative Rangoli and Rangoli plates. Perfect for festive celebrations and home decoration.",
+    stock: 100,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: true,
+      hasCustomMessage: true,
+      hasPhotoUpload: false,
+      colors: ["Festive Red & Gold", "Rangoli Vibrant Colors"]
+    }
+  },
+  {
+    id: "rc-pooja-flowers",
+    name: "Flowers",
+    category: "Pooja Products",
+    price: 50,
+    originalPrice: 80,
+    rating: 4.8,
+    reviewsCount: 19,
+    image: "/images/Birthday Gift.jpg",
+    gallery: ["/images/Birthday Gift.jpg"],
+    description: "Beautiful Handmade Flowers for Pooja Special Occasions.",
+    stock: 100,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: false,
+      hasCustomMessage: true,
+      hasPhotoUpload: false,
+      colors: ["Bright Red", "Lotus Pink", "Marigold Yellow"]
+    }
+  },
+  {
+    id: "rc-champa-flower-mala",
+    name: "Champa Flower Mala",
+    category: "Pooja Products",
+    price: 90,
+    originalPrice: 120,
+    rating: 4.9,
+    reviewsCount: 32,
+    image: "/images/Zendu Flower.jpg",
+    gallery: ["/images/Zendu Flower.jpg"],
+    description: "Handmade Champa Flower Garland for Pooja and traditional rituals.",
+    stock: 100,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: false,
+      hasCustomMessage: true,
+      hasPhotoUpload: false,
+      colors: ["Golden Yellow", "Pure White"]
+    }
+  },
+  {
+    id: "rc-hibiscus-flower-mala",
+    name: "Hibiscus Flower Mala",
+    category: "Pooja Products",
+    price: 90,
+    originalPrice: 120,
+    rating: 4.9,
+    reviewsCount: 28,
+    image: "/images/Zendu Flower.jpg",
+    gallery: ["/images/Zendu Flower.jpg"],
+    description: "Handmade Hibiscus Flower Garland for Pooja.",
+    stock: 100,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: false,
+      hasCustomMessage: true,
+      hasPhotoUpload: false,
+      colors: ["Devotional Red", "Maroon"]
+    }
+  },
+  {
+    id: "rc-zendu-flower-mala",
+    name: "Zendu Flower Mala",
+    category: "Pooja Products",
+    price: 90,
+    originalPrice: 120,
+    rating: 4.8,
+    reviewsCount: 41,
+    image: "/images/Zendu Flower.jpg",
+    gallery: ["/images/Zendu Flower.jpg"],
+    description: "Handmade Zendu Flower Garland for Pooja and Festivals.",
+    stock: 100,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: false,
+      hasCustomMessage: true,
+      hasPhotoUpload: false,
+      colors: ["Marigold Orange", "Bright Yellow"]
+    }
+  },
+  {
+    id: "rc-haldi-kumkum-special",
+    name: "Traditional Haldi-Kumkum Special Platter",
+    category: "Pooja Products",
+    price: 80,
+    originalPrice: 110,
+    rating: 4.9,
+    reviewsCount: 36,
+    image: "/images/Haldi-Kumkum Special - Copy.jpg",
+    gallery: ["/images/Haldi-Kumkum Special - Copy.jpg"],
+    description: "A beautiful blend of tradition and elegance, specially designed for Haldi-Kumkum ceremonies and auspicious rituals.",
+    stock: 100,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: true,
+      hasCustomMessage: true,
+      hasPhotoUpload: false,
+      colors: ["Traditional Red", "Auspicious Golden"]
+    }
+  },
+  {
+    id: "rc-coconut-packing",
+    name: "Red Handmade Coconut Packing",
+    category: "Wedding Gifts",
+    price: 100,
+    originalPrice: 140,
+    rating: 4.9,
+    reviewsCount: 27,
+    image: "/images/Red Handmade Coconut Packing.png",
+    gallery: ["/images/Red Handmade Coconut Packing.png"],
+    description: "Beautiful handmade red fabric coconut cover decorated with golden floral embellishments, ideal for weddings and rituals.",
+    stock: 100,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: true,
+      hasCustomMessage: true,
+      hasPhotoUpload: false,
+      colors: ["Auspicious Red", "Golden Trim"]
+    }
+  },
+  {
+    id: "rc-birthday-gift-girls",
+    name: "Beautiful Birthday Gift for Girls",
+    category: "Birthday Gifts",
+    price: 1200,
+    originalPrice: 1599,
+    rating: 5.0,
+    reviewsCount: 53,
+    image: "/images/Gift for grils.jpg",
+    gallery: ["/images/Gift for grils.jpg"],
+    description: "Make her birthday extra special with a beautiful and thoughtful gift, lovingly designed to bring a smile to her face.",
+    stock: 50,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: true,
+      hasCustomMessage: true,
+      hasPhotoUpload: true,
+      colors: ["Blush Pink", "Burgundy Maroon", "Golden Cream"]
+    }
+  },
+  {
+    id: "rc-mehendi-bride-gift",
+    name: "Special Mehendi Ceremony Gift for Bride",
+    category: "Mehendi Gifts",
+    price: 570,
+    originalPrice: 750,
+    rating: 4.9,
+    reviewsCount: 38,
+    image: "/images/Special Bride Gift.png",
+    gallery: ["/images/Special Bride Gift.png"],
+    description: "A beautiful handmade gift specially designed for the bride on her Mehendi ceremony. Perfect for bride gifting.",
+    stock: 50,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: true,
+      hasCustomMessage: true,
+      hasPhotoUpload: true,
+      colors: ["Royal Purple & Gold", "Emerald Green", "Bridal Pink"]
+    }
+  },
+  {
+    id: "rc-red-pooja-thali-pearl",
+    name: "Handmade Red Pooja Thali with Pearl Border",
+    category: "Pooja Products",
+    price: 200,
+    originalPrice: 299,
+    rating: 4.9,
+    reviewsCount: 46,
+    image: "/images/Pooja Plate handmade design.jpg",
+    gallery: ["/images/Pooja Plate handmade design.jpg", "/images/Pooja desing Thali.png"],
+    description: "Beautiful handmade red pooja thali decorated with elegant pearl beads, green and golden stones, and traditional diya spaces.",
+    stock: 50,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: true,
+      hasCustomMessage: true,
+      hasPhotoUpload: false,
+      colors: ["Royal Red & Pearl", "Traditional Green"]
+    }
+  },
+  {
+    id: "rc-custom-photo-plaque",
+    name: "Personalized Wooden Keepsake Plaque",
+    category: "Customize Gifts",
+    price: 699,
+    originalPrice: 999,
+    rating: 4.9,
+    reviewsCount: 45,
+    image: "/reference-assets/customize-home.jpg",
+    gallery: ["/reference-assets/customize-home.jpg", "/reference-assets/prod-photo-frame.jpg"],
+    description: "Custom engraved wooden plaque handcrafted with your custom portrait, family names, and meaningful celebratory quote. Perfect for anniversaries, birthdays, and weddings.",
+    stock: 40,
+    featured: true,
+    isCustomizable: true,
+    customizationOptions: {
+      hasRecipientName: true,
+      hasCustomMessage: true,
+      hasPhotoUpload: true,
+      colors: ["Natural Oak", "Royal Deep Burgundy", "Mocha Walnut"]
     }
   }
 ];

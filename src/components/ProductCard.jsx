@@ -21,7 +21,11 @@ export const ProductCard = ({ product }) => {
           className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
           loading="lazy"
           onError={(e) => {
-            e.target.src = "/logo.png";
+            if (product.imageData && e.target.src !== product.imageData) {
+              e.target.src = product.imageData;
+            } else {
+              e.target.src = "/logo.png";
+            }
           }}
         />
 

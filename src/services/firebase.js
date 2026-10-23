@@ -20,8 +20,16 @@ import {
   doc,
   setDoc,
   getDoc,
-  deleteDoc
+  deleteDoc,
+  onSnapshot
 } from "firebase/firestore";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  uploadString,
+  getDownloadURL
+} from "firebase/storage";
 
 // Default Production Firebase Config for Ruchi Creation
 const DEFAULT_CONFIG = {
@@ -35,7 +43,12 @@ const DEFAULT_CONFIG = {
 
 // Get configuration from env, localStorage, or fallback to DEFAULT_CONFIG
 export const getFirebaseConfig = () => {
-  const storedConfig = localStorage.getItem("ruchi_firebase_config");
+  let storedConfig = null;
+  if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+    try {
+      storedConfig = localStorage.getItem("ruchi_firebase_config");
+    } catch {}
+  }
   if (storedConfig) {
     try {
       const parsed = JSON.parse(storedConfig);
@@ -45,19 +58,22 @@ export const getFirebaseConfig = () => {
     }
   }
 
+  const env = typeof import.meta !== "undefined" && import.meta.env ? import.meta.env : (typeof process !== "undefined" && process.env ? process.env : {});
+
   return {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || DEFAULT_CONFIG.apiKey,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || DEFAULT_CONFIG.authDomain,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || DEFAULT_CONFIG.projectId,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || DEFAULT_CONFIG.storageBucket,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || DEFAULT_CONFIG.messagingSenderId,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID || DEFAULT_CONFIG.appId
+    apiKey: env.VITE_FIREBASE_API_KEY || DEFAULT_CONFIG.apiKey,
+    authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || DEFAULT_CONFIG.authDomain,
+    projectId: env.VITE_FIREBASE_PROJECT_ID || DEFAULT_CONFIG.projectId,
+    storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || DEFAULT_CONFIG.storageBucket,
+    messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || DEFAULT_CONFIG.messagingSenderId,
+    appId: env.VITE_FIREBASE_APP_ID || DEFAULT_CONFIG.appId
   };
 };
 
 let app = null;
 let auth = null;
 let db = null;
+let storage = null;
 let isConfigured = false;
 
 export const initFirebase = (customConfig = null) => {
@@ -83,8 +99,13 @@ export const initFirebase = (customConfig = null) => {
     }
     auth = getAuth(app);
     db = getFirestore(app);
+    try {
+      storage = getStorage(app);
+    } catch (sErr) {
+      console.warn("Firebase storage init notice:", sErr);
+    }
     isConfigured = true;
-    return { isConfigured: true, app, auth, db };
+    return { isConfigured: true, app, auth, db, storage };
   } catch (error) {
     console.error("Firebase initialization error:", error.message);
     isConfigured = false;
@@ -95,11 +116,12 @@ export const initFirebase = (customConfig = null) => {
 // Initialize on load
 initFirebase();
 
-export { app, auth, db, isConfigured };
+export { app, auth, db, storage, isConfigured };
 
-// ONLY order data is stored in Firebase Firestore
+// Firestore Collections for Ruchi Creation
 export const COLLECTIONS = {
-  ORDERS: "orders"
+  ORDERS: "orders",
+  PRODUCTS: "products"
 };
 
 /**
@@ -312,3 +334,64 @@ export const firestoreAddDoc = async (collName, data) => {
     return { success: false, error: error.message };
   }
 };
+
+/**
+ * Real-time listener for products collection from Cloud Firestore.
+ */
+export const subscribeToProducts = (callback) => {
+  if (!isConfigured || !db) return () => {};
+  try {
+    const colRef = collection(db, COLLECTIONS.PRODUCTS);
+    return onSnapshot(
+      colRef,
+      (snapshot) => {
+        const items = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
+        callback(items);
+      },
+      (error) => {
+        console.warn("Firestore products realtime listener warning:", error.message);
+      }
+    );
+  } catch (err) {
+    console.warn("Failed to subscribe to products:", err);
+    return () => {};
+  }
+};
+
+/**
+ * Upload an image file or base64 data URL to Firebase Storage.
+ */
+export const uploadImageToFirebaseStorage = async (fileOrDataUrl, folder = "products") => {
+  if (!isConfigured || !storage) {
+    return { success: false, message: "Firebase Storage not active" };
+  }
+
+  try {
+    const timestamp = Date.now();
+    const cleanId = Math.random().toString(36).substring(2, 8);
+
+    if (typeof fileOrDataUrl === "string" && fileOrDataUrl.startsWith("data:")) {
+      const match = fileOrDataUrl.match(/^data:image\/([a-zA-Z0-9]+);base64,/);
+      const ext = match ? match[1] : "jpg";
+      const fileName = `${folder}/${timestamp}_${cleanId}.${ext}`;
+      const imgRef = storageRef(storage, fileName);
+      await uploadString(imgRef, fileOrDataUrl, "data_url");
+      const downloadUrl = await getDownloadURL(imgRef);
+      return { success: true, url: downloadUrl };
+    } else if (fileOrDataUrl instanceof File || fileOrDataUrl instanceof Blob) {
+      const originalName = fileOrDataUrl.name || "image.jpg";
+      const ext = originalName.split(".").pop() || "jpg";
+      const fileName = `${folder}/${timestamp}_${cleanId}.${ext}`;
+      const imgRef = storageRef(storage, fileName);
+      await uploadBytes(imgRef, fileOrDataUrl);
+      const downloadUrl = await getDownloadURL(imgRef);
+      return { success: true, url: downloadUrl };
+    }
+
+    return { success: false, message: "Invalid image format" };
+  } catch (error) {
+    console.warn("Firebase Storage upload error:", error);
+    return { success: false, error: error.message };
+  }
+};
+

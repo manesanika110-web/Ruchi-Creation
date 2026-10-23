@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { compressImageFile } from "../../utils/imageCompressor";
+import { saveImageToPublicFolder } from "../../services/imageStorage";
 
 export const AdminMedia = () => {
   const { mediaLibrary, addMediaItem, deleteMediaItem } = useApp();
@@ -57,13 +58,23 @@ export const AdminMedia = () => {
     const file = e.target.files?.[0];
     if (file) {
       try {
-        const compressed = await compressImageFile(file, 900, 0.8);
-        setNewImageForm((prev) => ({
-          ...prev,
-          preview: compressed,
-          url: compressed,
-          name: prev.name || file.name.replace(/\.[^/.]+$/, "")
-        }));
+        const localSave = await saveImageToPublicFolder(file, file.name);
+        if (localSave && localSave.success && localSave.url) {
+          setNewImageForm((prev) => ({
+            ...prev,
+            preview: localSave.url,
+            url: localSave.url,
+            name: prev.name || file.name.replace(/\.[^/.]+$/, "")
+          }));
+        } else {
+          const compressed = await compressImageFile(file, 900, 0.8);
+          setNewImageForm((prev) => ({
+            ...prev,
+            preview: compressed,
+            url: compressed,
+            name: prev.name || file.name.replace(/\.[^/.]+$/, "")
+          }));
+        }
       } catch (err) {
         console.warn("Fallback to FileReader:", err);
         const reader = new FileReader();

@@ -21,6 +21,7 @@ import {
 import { useApp } from "../../context/AppContext";
 import { CATEGORIES } from "../../data/defaultProducts";
 import { compressImageFile } from "../../utils/imageCompressor";
+import { saveImageToPublicFolder } from "../../services/imageStorage";
 
 export const AdminProducts = () => {
   const { products, addProduct, updateProduct, deleteProduct } = useApp();
@@ -31,15 +32,19 @@ export const AdminProducts = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+  const [customCategory, setCustomCategory] = useState("");
 
   // Form State
   const initialForm = {
     name: "",
-    category: "Wedding Gifts",
+    category: "Customize Gifts",
     price: 999,
     originalPrice: 1399,
     stock: 20,
     image: "",
+    imageData: null,
+    imageFile: null,
     description: "",
     featured: true,
     bestseller: false,
@@ -55,6 +60,7 @@ export const AdminProducts = () => {
   // All unique categories in the system
   const allCategories = [
     ...new Set([
+      "Customize Gifts",
       "Wedding Gifts",
       "Birthday Gifts",
       "Mehendi Gifts",
@@ -81,11 +87,13 @@ export const AdminProducts = () => {
   const handleOpenAddModal = () => {
     setEditingProduct(null);
     setFormData(initialForm);
+    setCustomCategory("");
     setIsModalOpen(true);
   };
 
   const handleOpenEditModal = (product) => {
     setEditingProduct(product);
+    setCustomCategory("");
     setFormData({
       name: product.name || "",
       category: product.category || "Wedding Gifts",
@@ -93,6 +101,7 @@ export const AdminProducts = () => {
       originalPrice: product.originalPrice || "",
       stock: product.stock ?? 25,
       image: product.image || "",
+      imageFile: null,
       description: product.description || "",
       featured: product.featured || false,
       bestseller: product.bestseller || false,
@@ -110,14 +119,38 @@ export const AdminProducts = () => {
     if (file) {
       try {
         setIsCompressing(true);
-        // Downscale to max 800px and compress to lightweight JPEG ~40-70KB
-        const compressedBase64 = await compressImageFile(file, 800, 0.78);
-        setFormData((prev) => ({ ...prev, image: compressedBase64 }));
+        // 1. Immediately compress image to clean, lightweight base64 (~30-50KB)
+        const compressedBase64 = await compressImageFile(file, 700, 0.72);
+
+        // 2. Save directly into public/imgs/ folder (Website public folder on disk)
+        let localPath = null;
+        try {
+          const localSave = await saveImageToPublicFolder(compressedBase64 || file, formData.name || file.name);
+          if (localSave && localSave.success && localSave.url) {
+            localPath = localSave.url;
+          }
+        } catch (saveErr) {
+          console.warn("Public folder save notice:", saveErr);
+        }
+
+        const finalUrl = localPath || compressedBase64;
+
+        setFormData((prev) => ({
+          ...prev,
+          image: finalUrl,
+          imageData: compressedBase64,
+          imageFile: null
+        }));
       } catch (err) {
-        console.warn("Image compression fallback:", err);
+        console.warn("Image upload fallback:", err);
         const reader = new FileReader();
         reader.onloadend = () => {
-          setFormData((prev) => ({ ...prev, image: reader.result }));
+          setFormData((prev) => ({
+            ...prev,
+            image: reader.result,
+            imageData: reader.result,
+            imageFile: null
+          }));
         };
         reader.readAsDataURL(file);
       } finally {
@@ -128,28 +161,42 @@ export const AdminProducts = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("[AdminProducts] handleSubmit triggered with:", formData);
     if (!formData.name?.trim() || !formData.price) {
+      console.warn("[AdminProducts] Validation failed, missing name or price:", { name: formData.name, price: formData.price });
       alert("Please provide product name and price");
       return;
     }
 
+    const finalCategory = formData.category === "__NEW__"
+      ? (customCategory.trim() || "Customize Gifts")
+      : formData.category;
+
+    const isCustomizeCategory = finalCategory.toLowerCase().includes("custom");
+
     try {
       setIsSaving(true);
+      setSaveMessage("Uploading image to public folder & saving product permanently...");
       const colorArray = formData.colors
         ? formData.colors.split(",").map((c) => c.trim()).filter(Boolean)
         : ["Deep Burgundy", "Mocha Cream"];
 
+      const finalImage = (typeof formData.image === "string" && formData.image.trim())
+        ? formData.image.trim()
+        : (formData.imageData || "/reference-assets/detail-mug.jpg");
+
       const payload = {
         name: formData.name.trim(),
-        category: formData.category,
+        category: finalCategory,
         price: Number(formData.price),
         originalPrice: formData.originalPrice ? Number(formData.originalPrice) : null,
         stock: Number(formData.stock),
-        image: formData.image?.trim() || "/reference-assets/detail-mug.jpg",
+        image: finalImage,
+        ...(formData.imageData ? { imageData: formData.imageData } : {}),
         description: formData.description?.trim() || "",
         featured: Boolean(formData.featured),
         bestseller: Boolean(formData.bestseller),
-        isCustomizable: Boolean(formData.isCustomizable),
+        isCustomizable: isCustomizeCategory || Boolean(formData.isCustomizable),
         customizationOptions: {
           hasRecipientName: Boolean(formData.hasRecipientName),
           hasCustomMessage: Boolean(formData.hasCustomMessage),
@@ -168,11 +215,13 @@ export const AdminProducts = () => {
       setIsModalOpen(false);
       setEditingProduct(null);
       setFormData(initialForm);
+      setCustomCategory("");
     } catch (err) {
       console.error("Save product error:", err);
       alert("Error saving product: " + (err.message || "Unknown error"));
     } finally {
       setIsSaving(false);
+      setSaveMessage("");
     }
   };
 
@@ -400,7 +449,14 @@ export const AdminProducts = () => {
                   </label>
                   <select
                     value={formData.category}
-                    onChange={(e) => setFormData((p) => ({ ...p, category: e.target.value }))}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData((p) => ({
+                        ...p,
+                        category: val,
+                        isCustomizable: val === "Customize Gifts" || val.toLowerCase().includes("custom") ? true : p.isCustomizable
+                      }));
+                    }}
                     className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#1A070E] border border-[#4D1B28] text-white focus:outline-none focus:ring-1 focus:ring-[#8E3E53]"
                   >
                     {allCategories.map((cat) => (
@@ -408,7 +464,20 @@ export const AdminProducts = () => {
                         {cat}
                       </option>
                     ))}
+                    <option value="__NEW__" className="bg-[#3A101C] font-semibold text-[#CD97A5]">
+                      + Add New Custom Category...
+                    </option>
                   </select>
+                  {formData.category === "__NEW__" && (
+                    <input
+                      type="text"
+                      required
+                      placeholder="Type custom category name..."
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                      className="w-full mt-2 px-3.5 py-2 text-xs rounded-xl bg-[#1A070E] border border-[#632736] text-white focus:outline-none focus:ring-1 focus:ring-[#8E3E53]"
+                    />
+                  )}
                 </div>
 
                 <div>
@@ -553,23 +622,34 @@ export const AdminProducts = () => {
               </div>
 
               {/* Modal Buttons */}
-              <div className="pt-3 flex justify-end gap-2">
-                <button
-                  type="button"
-                  disabled={isSaving}
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-[#1A070E] text-[#D4B8C1] hover:text-white cursor-pointer disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving || isCompressing}
-                  className="px-6 py-2.5 bg-[#632736] hover:bg-[#7D2C42] border border-[#9E4459] text-white font-bold rounded-xl cursor-pointer disabled:opacity-50 flex items-center gap-2 transition-all shadow-md"
-                >
-                  {isSaving && <Loader2 className="w-4 h-4 animate-spin text-[#E5DAC8]" />}
-                  <span>{isSaving ? "Saving Product..." : editingProduct ? "Update Product" : "Save Product"}</span>
-                </button>
+              <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-left w-full sm:w-auto">
+                  {saveMessage && (
+                    <span className="text-[11px] text-[#CD97A5] italic flex items-center gap-1.5 animate-pulse">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>{saveMessage}</span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex justify-end gap-2 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    disabled={isSaving}
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2.5 rounded-xl bg-[#1A070E] text-[#D4B8C1] hover:text-white cursor-pointer disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving || isCompressing}
+                    className="px-6 py-2.5 bg-[#632736] hover:bg-[#7D2C42] border border-[#9E4459] text-white font-bold rounded-xl cursor-pointer disabled:opacity-50 flex items-center gap-2 transition-all shadow-md"
+                  >
+                    {isSaving && <Loader2 className="w-4 h-4 animate-spin text-[#E5DAC8]" />}
+                    <span>{isSaving ? "Saving & Syncing..." : editingProduct ? "Update Product" : "Save Product"}</span>
+                  </button>
+                </div>
               </div>
 
             </form>

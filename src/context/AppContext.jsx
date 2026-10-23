@@ -11,6 +11,7 @@ import {
   firebaseLoginUser, 
   firebaseSignOutUser,
   subscribeToAuthChanges,
+  subscribeToProducts,
   firestoreSetDoc,
   firestoreGetCollection,
   firestoreDeleteDoc,
@@ -18,6 +19,7 @@ import {
   isConfigured,
   db
 } from "../services/firebase";
+import { persistProductImage } from "../services/imageStorage";
 
 const AppContext = createContext();
 
@@ -61,7 +63,7 @@ const getUserCartKey = (user) => {
 };
 
 // Helper to safely write to localStorage without crashing React on QuotaExceededError
-export const safeStorageSet = (key, value) => {
+const safeStorageSet = (key, value) => {
   try {
     const serialized = typeof value === "string" ? value : JSON.stringify(value);
     localStorage.setItem(key, serialized);
@@ -114,7 +116,16 @@ export const AppProvider = ({ children }) => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const existingIds = new Set(parsed.map((p) => p.id));
+          const missingDefaults = DEFAULT_PRODUCTS.filter((dp) => !existingIds.has(dp.id));
+          if (missingDefaults.length > 0) {
+            const merged = [...parsed, ...missingDefaults];
+            safeStorageSet("rc_replica_products", merged);
+            return merged;
+          }
+          return parsed;
+        }
       } catch (e) {
         console.error(e);
       }
@@ -477,43 +488,214 @@ export const AppProvider = ({ children }) => {
     return () => { isMounted = false; };
   }, []);
 
-  // Sync Orders with Cloud Firestore (Only order data is stored in Firestore)
+  // Helper to ensure clean, strictly serializable document for Cloud Firestore
+  const sanitizeProductForFirestore = (prod) => {
+    const doc = {
+      id: String(prod.id || ("rc-prod-" + Date.now())),
+      name: String(prod.name || "Custom Gift").trim(),
+      category: String(prod.category || "Customize Gifts").trim(),
+      price: Number(prod.price || 0),
+      stock: Number(prod.stock ?? 25),
+      image: typeof prod.image === "string" ? prod.image : "/reference-assets/detail-mug.jpg",
+      description: String(prod.description || "").trim(),
+      featured: Boolean(prod.featured),
+      bestseller: Boolean(prod.bestseller),
+      isCustomizable: Boolean(prod.isCustomizable || (prod.category || "").toLowerCase().includes("custom")),
+      rating: Number(prod.rating || 4.9),
+      reviewsCount: Number(prod.reviewsCount || 25),
+      gallery: Array.isArray(prod.gallery) && prod.gallery.length > 0
+        ? prod.gallery.filter((g) => typeof g === "string")
+        : [typeof prod.image === "string" ? prod.image : "/reference-assets/detail-mug.jpg"],
+      customizationOptions: {
+        hasRecipientName: Boolean(prod.customizationOptions?.hasRecipientName ?? true),
+        hasCustomMessage: Boolean(prod.customizationOptions?.hasCustomMessage ?? true),
+        hasPhotoUpload: Boolean(prod.customizationOptions?.hasPhotoUpload ?? false),
+        colors: Array.isArray(prod.customizationOptions?.colors)
+          ? prod.customizationOptions.colors
+          : ["Deep Burgundy", "Golden Mocha"],
+        occasions: Array.isArray(prod.customizationOptions?.occasions)
+          ? prod.customizationOptions.occasions
+          : ["Birthday", "Anniversary", "Special Surprise", "Festival"]
+      },
+      createdAt: prod.createdAt || new Date().toISOString()
+    };
+
+    if (prod.originalPrice != null && !isNaN(Number(prod.originalPrice))) {
+      doc.originalPrice = Number(prod.originalPrice);
+    }
+    if (prod.imageData && typeof prod.imageData === "string") {
+      doc.imageData = prod.imageData;
+    }
+    return doc;
+  };
+
+  // Synchronize & listen to products in real-time from Cloud Firestore with auto-seeding
+  useEffect(() => {
+    let isMounted = true;
+    if (!isConfigured || !db) return;
+
+    // 1. Initial Load & Auto-Seed from Cloud Firestore
+    const initFirestoreProducts = async () => {
+      try {
+        const remoteRes = await firestoreGetCollection(COLLECTIONS.PRODUCTS);
+        let remoteProducts = [];
+        if (remoteRes.success && Array.isArray(remoteRes.data)) {
+          remoteProducts = remoteRes.data;
+        }
+
+        const remoteMap = new Map(remoteProducts.map((p) => [p.id, p]));
+        
+        // Auto-seed any default products not yet in Firestore so Firestore is the permanent cloud source of truth
+        const missingDefaults = DEFAULT_PRODUCTS.filter((dp) => !remoteMap.has(dp.id));
+        if (missingDefaults.length > 0) {
+          console.log(`[Firestore Auto-Seed] Syncing ${missingDefaults.length} products to Cloud Firestore...`);
+          for (const item of missingDefaults) {
+            try {
+              const cleanDoc = sanitizeProductForFirestore(item);
+              await firestoreSetDoc(COLLECTIONS.PRODUCTS, item.id, cleanDoc);
+            } catch (seedErr) {
+              console.warn(`[Firestore Auto-Seed] Error syncing ${item.id}:`, seedErr);
+            }
+          }
+        }
+
+        // Merge remote products with defaults
+        const combined = [...remoteProducts];
+        DEFAULT_PRODUCTS.forEach((dp) => {
+          if (!remoteMap.has(dp.id)) {
+            combined.push(dp);
+          }
+        });
+
+        if (isMounted && combined.length > 0) {
+          setProducts(combined);
+          safeStorageSet("rc_replica_products", combined);
+        }
+      } catch (err) {
+        console.warn("Initial Firestore products sync notice:", err);
+      }
+    };
+
+    initFirestoreProducts();
+
+    // 2. Real-time subscription to Cloud Firestore products
+    const unsubscribe = subscribeToProducts((remoteProducts) => {
+      if (Array.isArray(remoteProducts) && isMounted) {
+        setProducts((prev) => {
+          const remoteMap = new Map(remoteProducts.map((p) => [p.id, p]));
+          const combined = [...remoteProducts];
+
+          DEFAULT_PRODUCTS.forEach((dp) => {
+            if (!remoteMap.has(dp.id)) {
+              combined.push(dp);
+            }
+          });
+
+          safeStorageSet("rc_replica_products", combined);
+          return combined;
+        });
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      if (typeof unsubscribe === "function") unsubscribe();
+    };
+  }, []);
+
+  // Sync Orders and Products with Cloud Firestore
   const syncAllWithFirestore = useCallback(async () => {
     if (!isConfigured || !db) {
-      return { success: false, message: "Firebase is in standby mode. Orders are saved locally." };
+      return { success: false, message: "Firebase is in standby mode. Data is saved locally." };
     }
 
     setIsSyncing(true);
     try {
+      // 1. Sync Orders
       const remoteOrders = await firestoreGetCollection(COLLECTIONS.ORDERS);
       if (remoteOrders.success && Array.isArray(remoteOrders.data)) {
         const cleanOrders = remoteOrders.data.filter((o) => o.id !== "RC1244" && o.id !== "RC1245");
         setOrders(cleanOrders);
       }
 
+      // 2. Sync Products
+      const remoteProducts = await firestoreGetCollection(COLLECTIONS.PRODUCTS);
+      if (remoteProducts.success && Array.isArray(remoteProducts.data) && remoteProducts.data.length > 0) {
+        const remoteMap = new Map(remoteProducts.data.map((p) => [p.id, p]));
+        const combined = [...remoteProducts.data];
+        DEFAULT_PRODUCTS.forEach((dp) => {
+          if (!remoteMap.has(dp.id)) {
+            combined.push(dp);
+          }
+        });
+        setProducts(combined);
+        safeStorageSet("rc_replica_products", combined);
+      }
+
       setIsSyncing(false);
-      showToast("Orders successfully synchronized with Cloud Firestore!");
+      showToast("Data successfully synchronized with Cloud Firestore!");
       return { success: true };
     } catch (err) {
       setIsSyncing(false);
-      console.warn("Firestore orders sync notice:", err);
+      console.warn("Firestore sync notice:", err);
       return { success: false, error: err.message };
     }
   }, []);
 
-  // Product CRUD (Only stored locally in website data, NOT in Firestore)
+  // Product CRUD: Persistent Image Upload + Cloud Firestore + Local Cache
   const addProduct = async (p) => {
-    const id = "rc-prod-" + Date.now();
-    const item = { ...p, id };
-    setProducts((prev) => [item, ...prev]);
+    const id = p.id || ("rc-prod-" + Date.now());
 
-    // Add to media library if it has an image
-    if (item.image) {
+    // 1. Process image if provided as File, Blob, or raw upload
+    let finalImageUrl = typeof p.image === "string" && p.image ? p.image : "/reference-assets/detail-mug.jpg";
+    let finalImageData = p.imageData || (finalImageUrl.startsWith("data:") ? finalImageUrl : null);
+
+    if (p.image && (typeof p.image !== "string" || p.image instanceof File || p.image instanceof Blob)) {
+      try {
+        const uploadResult = await persistProductImage(p.image, p.name);
+        if (uploadResult && uploadResult.success && uploadResult.url) {
+          finalImageUrl = uploadResult.url;
+          if (uploadResult.imageData) finalImageData = uploadResult.imageData;
+        }
+      } catch (imgErr) {
+        console.warn("Product image upload notice:", imgErr);
+      }
+    }
+
+    const item = {
+      ...p,
+      id,
+      image: finalImageUrl,
+      ...(finalImageData ? { imageData: finalImageData } : {}),
+      gallery: Array.isArray(p.gallery) && p.gallery.length > 0
+        ? p.gallery.filter((g) => typeof g === "string")
+        : [finalImageUrl],
+      createdAt: p.createdAt || new Date().toISOString()
+    };
+
+    // 2. Immediately update local state so product appears instantly in category without page refresh
+    setProducts((prev) => [item, ...prev.filter((prod) => prod.id !== id)]);
+
+    // 3. Save clean product document permanently in Cloud Firestore
+    if (isConfigured && db) {
+      try {
+        const cleanDoc = sanitizeProductForFirestore(item);
+        const fbRes = await firestoreSetDoc(COLLECTIONS.PRODUCTS, id, cleanDoc);
+        if (!fbRes.success) {
+          console.warn("Could not save product to Firestore:", fbRes.error);
+        }
+      } catch (err) {
+        console.warn("Could not save product to Firestore:", err);
+      }
+    }
+
+    // 4. Add to media library
+    if (finalImageUrl) {
       try {
         addMediaItem({
           id: "m-" + id,
           name: `Product: ${item.name}`,
-          url: item.image,
+          url: finalImageUrl,
           category: "Products"
         });
       } catch (e) {
@@ -521,17 +703,55 @@ export const AppProvider = ({ children }) => {
       }
     }
 
-    showToast("Product added successfully!");
+    showToast(`"${item.name}" added to ${item.category || "catalog"}!`);
     return item;
   };
 
   const updateProduct = async (id, fields) => {
-    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...fields } : p)));
+    let updatedFields = { ...fields };
+
+    // If image was changed to a new upload, persist image
+    if (fields.image && (typeof fields.image !== "string" || fields.image.startsWith("data:"))) {
+      try {
+        const uploadResult = await persistProductImage(fields.image, fields.name || "product");
+        if (uploadResult && uploadResult.success && uploadResult.url) {
+          updatedFields.image = uploadResult.url;
+          if (uploadResult.imageData) updatedFields.imageData = uploadResult.imageData;
+        }
+      } catch (imgErr) {
+        console.warn("Product image update notice:", imgErr);
+      }
+    }
+
+    // 1. Update local state immediately
+    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...updatedFields } : p)));
+
+    // 2. Update in Cloud Firestore
+    if (isConfigured && db) {
+      try {
+        const cleanDoc = sanitizeProductForFirestore({ id, ...updatedFields });
+        await firestoreSetDoc(COLLECTIONS.PRODUCTS, id, cleanDoc, true);
+      } catch (err) {
+        console.warn("Could not update product in Firestore:", err);
+      }
+    }
+
     showToast("Product updated!");
   };
 
   const deleteProduct = async (id) => {
+    // 1. Remove from local state immediately
     setProducts((prev) => prev.filter((p) => p.id !== id));
+
+    // 2. Delete from Cloud Firestore
+    if (isConfigured && db) {
+      try {
+        await firestoreDeleteDoc(COLLECTIONS.PRODUCTS, id);
+      } catch (err) {
+        console.warn("Could not delete product from Firestore:", err);
+      }
+    }
+
     showToast("Product removed!");
   };
 
@@ -1311,4 +1531,4 @@ const FlyingCartOverlay = ({ item }) => {
   );
 };
 
-export const useApp = () => useContext(AppContext);
+export const useApp = () => useContext(AppContext) || {};

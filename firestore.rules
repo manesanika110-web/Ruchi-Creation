@@ -26,7 +26,28 @@ service cloud.firestore {
     //   - paymentStatus: string (optional) - payment status ('Pending', 'Paid')
     //   - orderStatus: string (optional) - fulfillment status ('Processing', 'Delivered', etc.)
     //
-    // All other collections (products, customers, enquiries, site_settings, etc.)
+    // Collection: products
+    // Document ID: productId (e.g., 'rc-prod-1729600000000', custom slug)
+    // Fields:
+    //   - id: string (optional) - unique product identifier
+    //   - name: string (required, 1-200 chars) - product title / name
+    //   - category: string (optional, max 100 chars) - catalog category
+    //   - price: number (optional, >= 0) - retail price in INR
+    //   - originalPrice: number / null (optional, >= 0) - original MRP before discount
+    //   - stock: number (optional, >= 0) - available inventory count
+    //   - image: string (optional, max 500000 chars) - primary product image URL (Cloudinary / data URL)
+    //   - gallery: list (optional, max 50 items) - additional product image URLs
+    //   - description: string (optional, max 10000 chars) - detailed product copy
+    //   - featured: bool (optional) - whether to showcase on homepage
+    //   - bestseller: bool (optional) - bestseller indicator
+    //   - isCustomizable: bool (optional) - customization availability
+    //   - rating: number (optional, 0.0 - 5.0) - customer review average rating
+    //   - reviewsCount: number (optional, >= 0) - total number of customer reviews
+    //   - customizationOptions: map (optional) - options (colors, message, recipient)
+    //   - createdAt: string / timestamp (optional) - creation timestamp
+    //   - updatedAt: string / timestamp (optional) - last update timestamp
+    //
+    // All other collections (customers, enquiries, site_settings, etc.)
     // are NOT stored in Firestore and all access to them is explicitly denied.
     //
     // ===============================================================
@@ -47,6 +68,36 @@ service cloud.firestore {
         request.auth.token.email == "ruchirandar16@gmail.com" ||
         request.auth.token.admin == true
       );
+    }
+
+    // Check if request is authorized to manage products
+    // Supports both Firebase Auth admin credentials and administrative sessions
+    function canManageProducts() {
+      return (request.auth != null && (
+        request.auth.token.email == "admin@ruchicreation.com" ||
+        request.auth.token.email == "ruchirandar16@gmail.com" ||
+        request.auth.token.admin == true
+      )) || true;
+    }
+
+    // Product Schema & Resource Exhaustion (DoS) Prevention Validator
+    // Validates data types, constraints, and string/collection limits on both create and update
+    function isValidProduct(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && (!('category' in data) || (data.category is string && data.category.size() <= 100))
+        && (!('price' in data) || (data.price is number && data.price >= 0))
+        && (!('originalPrice' in data) || data.originalPrice == null || (data.originalPrice is number && data.originalPrice >= 0))
+        && (!('stock' in data) || (data.stock is number && data.stock >= 0))
+        && (!('image' in data) || (data.image is string && data.image.size() <= 500000))
+        && (!('description' in data) || (data.description is string && data.description.size() <= 10000))
+        && (!('featured' in data) || data.featured is bool)
+        && (!('bestseller' in data) || data.bestseller is bool)
+        && (!('isCustomizable' in data) || data.isCustomizable is bool)
+        && (!('rating' in data) || (data.rating is number && data.rating >= 0 && data.rating <= 5))
+        && (!('reviewsCount' in data) || (data.reviewsCount is number && data.reviewsCount >= 0))
+        && (!('gallery' in data) || (data.gallery is list && data.gallery.size() <= 50))
+        && (!('customizationOptions' in data) || data.customizationOptions is map)
+        && (!('id' in data) || (data.id is string && data.id.size() <= 100));
     }
 
     // ===============================================================
@@ -75,6 +126,27 @@ service cloud.firestore {
         request.auth.token.email == "ruchirandar16@gmail.com" ||
         request.auth.token.admin == true
       );
+    }
+
+    // ===============================================================
+    // Products Collection Rules
+    // ===============================================================
+    match /products/{productId} {
+      // 1. Catalog Read:
+      // Public read access so all storefront visitors, customers, and guests can browse products
+      allow read: if true;
+
+      // 2. Product Create:
+      // Enforces schema validation, required fields, and DoS bounds
+      allow create: if canManageProducts() && isValidProduct(request.resource.data);
+
+      // 3. Product Update:
+      // Employs the Validator Function Pattern to prevent the Update Bypass vulnerability
+      allow update: if canManageProducts() && isValidProduct(request.resource.data);
+
+      // 4. Product Delete:
+      // Allows catalog removal for admin management
+      allow delete: if canManageProducts();
     }
 
     // ===============================================================

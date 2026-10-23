@@ -91,6 +91,13 @@ export const ProductDetails = () => {
                   src={photoPreview || activeImage}
                   alt={product.name}
                   className="w-full h-full object-contain transition-all duration-500 ease-out"
+                  onError={(e) => {
+                    if (product.imageData && e.target.src !== product.imageData) {
+                      e.target.src = product.imageData;
+                    } else {
+                      e.target.src = "/logo.png";
+                    }
+                  }}
                 />
 
                 {/* Wishlist Button on Top Right */}
