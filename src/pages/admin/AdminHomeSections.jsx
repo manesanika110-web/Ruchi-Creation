@@ -560,6 +560,149 @@ export const AdminHomeSections = () => {
               </div>
             )}
 
+            {/* Service Benefits */}
+            {activeSectionId === "serviceBenefits" && (
+              <div className="space-y-4 pt-2 border-t border-[#3E1421]">
+                <h3 className="font-bold text-xs uppercase text-[#CD97A5] tracking-wider">
+                  Service Benefits Bar (4 Badges)
+                </h3>
+                <div className="space-y-3">
+                  {(sectionData.items || []).map((item, idx) => (
+                    <div key={item.id || idx} className="p-3 rounded-xl bg-[#1A070E] border border-[#3E1421] space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-[#E5DAC8]">Benefit #{idx + 1} ({item.id})</span>
+                        <span className="text-[10px] text-[#CD97A5] font-mono">Icon: {item.icon}</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={item.title}
+                          onChange={(e) => handleNestedChange("items", idx, "title", e.target.value)}
+                          placeholder="Title (e.g. Free Shipping)"
+                          className="px-2.5 py-1 text-xs rounded-lg bg-[#240B13] text-white border border-[#4D1B28]"
+                        />
+                        <input
+                          type="text"
+                          value={item.subtitle}
+                          onChange={(e) => handleNestedChange("items", idx, "subtitle", e.target.value)}
+                          placeholder="Subtitle (e.g. On orders above ₹999)"
+                          className="px-2.5 py-1 text-xs rounded-lg bg-[#240B13] text-[#D4B8C1] border border-[#4D1B28]"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Shop by Category Circles */}
+            {activeSectionId === "shopByCategory" && (
+              <div className="space-y-4 pt-2 border-t border-[#3E1421]">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-xs uppercase text-[#CD97A5] tracking-wider">
+                    Shop by Category Circles (8 Categories)
+                  </h3>
+                  <span className="text-[10px] text-[#A88B93]">Image 2 Circular Layout</span>
+                </div>
+                <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#4D1B28]">
+                  {(sectionData.items || []).map((item, idx) => (
+                    <div key={item.id || idx} className="p-2.5 rounded-xl bg-[#1A070E] border border-[#3E1421] flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full overflow-hidden bg-white shrink-0 border border-[#CD97A5]">
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" onError={(e) => { e.target.src = "/logo.png"; }} />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <input
+                          type="text"
+                          value={item.name}
+                          onChange={(e) => handleNestedChange("items", idx, "name", e.target.value)}
+                          placeholder="Category Name"
+                          className="w-full px-2 py-0.5 text-xs font-bold rounded bg-[#240B13] text-white border border-[#4D1B28]"
+                        />
+                        <input
+                          type="text"
+                          value={item.image}
+                          onChange={(e) => handleNestedChange("items", idx, "image", e.target.value)}
+                          placeholder="/images/... or URL"
+                          className="w-full px-2 py-0.5 text-[11px] rounded bg-[#240B13] text-[#CD97A5] font-mono border border-[#4D1B28]"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Featured Products */}
+            {activeSectionId === "featuredProducts" && (
+              <div className="space-y-4 pt-2 border-t border-[#3E1421]">
+                <h3 className="font-bold text-xs uppercase text-[#CD97A5] tracking-wider">
+                  Featured Products Carousel Section
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#E5DAC8] mb-1">
+                      "View All" Button Text
+                    </label>
+                    <input
+                      type="text"
+                      value={sectionData.viewAllText || ""}
+                      onChange={(e) => handleInputChange("viewAllText", e.target.value)}
+                      placeholder="View All Gallery"
+                      className="w-full px-3 py-1.5 text-xs rounded-xl bg-[#1A070E] border border-[#4D1B28] text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-[#E5DAC8] mb-1">
+                      "View All" Destination Link
+                    </label>
+                    <input
+                      type="text"
+                      value={sectionData.viewAllLink || ""}
+                      onChange={(e) => handleInputChange("viewAllLink", e.target.value)}
+                      placeholder="/featured-products"
+                      className="w-full px-3 py-1.5 text-xs rounded-xl bg-[#1A070E] border border-[#4D1B28] text-white font-mono"
+                    />
+                  </div>
+                </div>
+                <p className="text-[11px] text-[#A88B93]">
+                  The 6 featured product cards render in one continuous horizontal carousel row matching Reference Image 2.
+                </p>
+              </div>
+            )}
+
+            {/* Thoughtful Gifts Banner */}
+            {activeSectionId === "thoughtfulGifts" && (
+              <div className="space-y-4 pt-2 border-t border-[#3E1421]">
+                <h3 className="font-bold text-xs uppercase text-[#CD97A5] tracking-wider">
+                  Thoughtful Gifts Banner (Above Footer)
+                </h3>
+                <div>
+                  <label className="block text-xs font-semibold text-[#E5DAC8] mb-1">
+                    Banner Main Heading
+                  </label>
+                  <input
+                    type="text"
+                    value={sectionData.heading || ""}
+                    onChange={(e) => handleInputChange("heading", e.target.value)}
+                    placeholder="Thoughtful Gifts for Every Moment"
+                    className="w-full px-3 py-1.5 text-xs rounded-xl bg-[#1A070E] border border-[#4D1B28] text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[#E5DAC8] mb-1">
+                    Banner Subheading Text
+                  </label>
+                  <textarea
+                    rows="2"
+                    value={sectionData.subheading || ""}
+                    onChange={(e) => handleInputChange("subheading", e.target.value)}
+                    placeholder="From birthdays to weddings, from kids to grandparents – find the perfect gift for every person and every occasion."
+                    className="w-full px-3 py-1.5 text-xs rounded-xl bg-[#1A070E] border border-[#4D1B28] text-white resize-none"
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Save Button */}
             <div className="pt-4 flex justify-end">
               <button

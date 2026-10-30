@@ -3,6 +3,7 @@ import { Link, useSearchParams, useLocation } from "react-router-dom";
 import { Search, ChevronRight, Gift, Sparkles, Heart } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { CATEGORIES } from "../data/defaultProducts";
+import { ProductCard } from "../components/ProductCard";
 
 export const Shop = () => {
   const { products } = useApp();
@@ -149,39 +150,11 @@ export const Shop = () => {
               </div>
             </div>
 
-            {/* Products Grid (3 columns on desktop matching reference) */}
+            {/* Products Grid (2 columns on mobile, 3 columns on tablet/desktop) */}
             {sortedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-5">
                 {sortedProducts.map((p) => (
-                  <div
-                    key={p.id}
-                    className="bg-[#FAF5EB] rounded-2xl border border-[#E5DAC8] p-3.5 flex flex-col justify-between text-left shadow-xs hover:shadow-md transition-shadow"
-                  >
-                    <div>
-                      <div className="aspect-square rounded-xl overflow-hidden bg-white border border-[#E5DAC8] mb-2.5 flex items-center justify-center p-2">
-                        <img
-                          src={p.image}
-                          alt={p.name}
-                          className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <h3 className="font-serif font-bold text-sm text-[#3B1822] line-clamp-1">
-                        {p.name}
-                      </h3>
-                      <span className="text-xs font-bold text-[#632736] block mt-1">
-                        ₹ {p.price.toLocaleString("en-IN")}
-                      </span>
-                    </div>
-
-                    <div className="pt-3">
-                      <Link
-                        to={`/product/${p.id}`}
-                        className="w-full py-1.5 bg-[#632736] hover:bg-[#4D1B28] text-white text-xs font-semibold rounded-lg text-center block transition-colors shadow-xs"
-                      >
-                        View Details
-                      </Link>
-                    </div>
-                  </div>
+                  <ProductCard key={p.id} product={p} />
                 ))}
               </div>
             ) : (

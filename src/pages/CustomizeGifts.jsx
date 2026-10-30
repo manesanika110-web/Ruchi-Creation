@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Sparkles, Camera, PenTool, CheckCircle, Heart, ArrowRight, Upload, Palette, Gift, Star } from "lucide-react";
+import { Sparkles, Camera, PenTool, CheckCircle, Heart, ArrowRight, Upload, Palette, Gift, Star, ShoppingCart, Zap } from "lucide-react";
 import { useApp } from "../context/AppContext";
+import { ProductCard } from "../components/ProductCard";
 
 export const CustomizeGifts = () => {
   const { products, addToCart, toggleWishlist, isInWishlist, animatingWishlistId, pageSettings } = useApp();
@@ -54,9 +55,22 @@ export const CustomizeGifts = () => {
       1,
       e
     );
-    setTimeout(() => {
-      navigate("/cart");
-    }, 750);
+  };
+
+  const handleBuyNow = () => {
+    addToCart(
+      selectedProduct,
+      {
+        recipientName,
+        customMessage,
+        photoPreview,
+        photoFileName,
+        selectedColor
+      },
+      1,
+      null
+    );
+    navigate("/checkout");
   };
 
   return (
@@ -211,12 +225,19 @@ export const CustomizeGifts = () => {
                 <button
                   type="button"
                   onClick={(e) => handleAddToCart(e)}
-                  className="px-6 py-2.5 bg-[#632736] hover:bg-[#4D1B28] text-white text-xs font-semibold rounded-full shadow-md transition-all flex items-center gap-2 active:scale-95"
+                  className="px-5 py-2.5 bg-white hover:bg-[#FAF5EB] text-[#632736] border-2 border-[#632736] text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-2 active:scale-95 cursor-pointer"
                 >
+                  <ShoppingCart className="w-4 h-4" />
                   <span>Add Customized Gift to Cart</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
-                <span className="text-sm font-bold text-[#632736]">₹{selectedProduct?.price}</span>
+                <button
+                  type="button"
+                  onClick={handleBuyNow}
+                  className="px-5 py-2.5 bg-[#632736] hover:bg-[#4D1B28] text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2 active:scale-95 cursor-pointer"
+                >
+                  <Zap className="w-4 h-4 fill-white" />
+                  <span>Buy Now (₹{selectedProduct?.price.toLocaleString("en-IN")})</span>
+                </button>
               </div>
             </div>
 
@@ -289,63 +310,10 @@ export const CustomizeGifts = () => {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {customizableProducts.map((p) => {
-              const isWish = isInWishlist(p.id);
-              const isPopping = animatingWishlistId === p.id;
-              return (
-                <div
-                  key={p.id}
-                  className="bg-white rounded-2xl border border-[#E5DAC8] p-4 flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-2 transition-all duration-300 relative group"
-                >
-                  <button
-                    onClick={() => toggleWishlist(p.id)}
-                    className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md active:scale-90 ${
-                      isPopping ? "animate-heart-pop" : ""
-                    } ${
-                      isWish ? "bg-[#632736] text-white" : "bg-white/90 text-gray-600 hover:text-[#632736]"
-                    }`}
-                  >
-                    <Heart className={`w-4 h-4 transition-transform ${isWish ? "fill-white text-white" : ""} ${isPopping ? "scale-125" : ""}`} />
-                  </button>
-
-                  <div className="aspect-square rounded-xl overflow-hidden border border-gray-100 mb-3 flex items-center justify-center bg-[#FAF5EB]">
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-[#632736] tracking-wider block">
-                      {p.category}
-                    </span>
-                    <h3 className="font-serif font-bold text-sm text-[#3B1822] line-clamp-1">
-                      {p.name}
-                    </h3>
-                    <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                      {p.description}
-                    </p>
-                    <span className="text-xs font-bold text-[#632736] block pt-1">
-                      ₹{p.price.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-
-                  <div className="pt-3 mt-2 border-t border-gray-100 flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        setSelectedProductId(p.id);
-                        window.scrollTo({ top: 320, behavior: "smooth" });
-                      }}
-                      className="w-full py-1.5 bg-[#632736] hover:bg-[#4D1B28] text-white text-xs font-semibold rounded-full text-center transition-colors block active:scale-95"
-                    >
-                      Customize This
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-6">
+            {customizableProducts.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
           </div>
         </div>
 

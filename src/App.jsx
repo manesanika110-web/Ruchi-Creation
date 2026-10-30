@@ -11,6 +11,8 @@ import { Home } from "./pages/Home";
 import { About } from "./pages/About";
 import { CustomizeGifts } from "./pages/CustomizeGifts";
 import { ShopByCategory } from "./pages/ShopByCategory";
+import { ByRecipient } from "./pages/ByRecipient";
+import { ByOccasion } from "./pages/ByOccasion";
 import { FeaturedProducts } from "./pages/FeaturedProducts";
 import { ProductGallery } from "./pages/ProductGallery";
 import { RentProducts } from "./pages/RentProducts";
@@ -35,6 +37,8 @@ import { AdminCustomers } from "./pages/admin/AdminCustomers";
 import { AdminEnquiries } from "./pages/admin/AdminEnquiries";
 import { AdminPages } from "./pages/admin/AdminPages";
 import { AdminHomeSections } from "./pages/admin/AdminHomeSections";
+import { AdminHero } from "./pages/admin/AdminHero";
+import { AdminFooter } from "./pages/admin/AdminFooter";
 import { AdminMedia } from "./pages/admin/AdminMedia";
 import { AdminContent } from "./pages/admin/AdminContent";
 
@@ -42,10 +46,10 @@ import { AdminContent } from "./pages/admin/AdminContent";
 // Storefront layout wrapper
 const StoreLayout = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-[#F5EEDC]">
+    <div className="min-h-screen flex flex-col bg-[#F5EEDC] w-full overflow-x-hidden">
       <Navbar />
       <AuthModal />
-      <main className="flex-grow">
+      <main className="flex-grow w-full overflow-x-hidden">
         <Outlet />
       </main>
       <Footer />
@@ -66,7 +70,12 @@ export function App() {
             <Route path="customize-gifts" element={<CustomizeGifts />} />
             <Route path="customize" element={<CustomizeGifts />} />
             <Route path="shop-by-category" element={<ShopByCategory />} />
+            <Route path="shop-gifts" element={<ShopByCategory />} />
             <Route path="categories" element={<ShopByCategory />} />
+            <Route path="by-recipient" element={<ByRecipient />} />
+            <Route path="recipient" element={<ByRecipient />} />
+            <Route path="by-occasion" element={<ByOccasion />} />
+            <Route path="occasion" element={<ByOccasion />} />
             <Route path="featured-products" element={<FeaturedProducts />} />
             <Route path="featured" element={<FeaturedProducts />} />
             <Route path="product-gallery" element={<ProductGallery />} />
@@ -100,7 +109,9 @@ export function App() {
             <Route path="customers" element={<AdminCustomers />} />
             <Route path="enquiries" element={<AdminEnquiries />} />
             <Route path="pages" element={<AdminPages />} />
+            <Route path="hero" element={<AdminHero />} />
             <Route path="home-sections" element={<AdminHomeSections />} />
+            <Route path="footer" element={<AdminFooter />} />
             <Route path="media" element={<AdminMedia />} />
             <Route path="content" element={<AdminContent />} />
             <Route path="settings" element={<AdminContent />} />

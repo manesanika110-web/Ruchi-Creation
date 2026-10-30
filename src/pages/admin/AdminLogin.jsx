@@ -7,8 +7,8 @@ export const AdminLogin = () => {
   const { adminLogin, settings } = useApp();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@ruchicreation.com");
+  const [password, setPassword] = useState("admin123");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ export const AdminLogin = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#120408] via-[#200A12] to-[#120408] flex items-center justify-center py-10 sm:py-16 px-4 selection:bg-[#632736] selection:text-white">
       <div className="max-w-[420px] w-full bg-[#240B13] rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-[#4D1B28] shadow-2xl space-y-5 text-left relative overflow-hidden my-auto">
-        
+
         {/* Subtle Decorative Ambient Glow */}
         <div className="absolute top-0 right-0 w-44 h-44 bg-[#632736]/20 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16"></div>
         <div className="absolute bottom-0 left-0 w-44 h-44 bg-[#4D1B28]/20 rounded-full blur-3xl pointer-events-none -ml-16 -mb-16"></div>

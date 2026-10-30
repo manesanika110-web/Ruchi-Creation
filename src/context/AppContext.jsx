@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { DEFAULT_PRODUCTS } from "../data/defaultProducts";
 import { 
   DEFAULT_PAGE_SETTINGS, 
+  DEFAULT_FOOTER_SETTINGS,
   DEFAULT_HOME_SECTIONS, 
   DEFAULT_SECTION_ORDER, 
   DEFAULT_MEDIA_ITEMS 
@@ -262,6 +263,19 @@ export const AppProvider = ({ children }) => {
     return DEFAULT_MEDIA_ITEMS;
   });
 
+  // 11. Footer Content & Management
+  const [footerSettings, setFooterSettings] = useState(() => {
+    const saved = localStorage.getItem("rc_footer_settings");
+    if (saved) {
+      try {
+        return { ...DEFAULT_FOOTER_SETTINGS, ...JSON.parse(saved) };
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    return DEFAULT_FOOTER_SETTINGS;
+  });
+
   // Admin User
   const [adminUser, setAdminUser] = useState(() => {
     const saved = localStorage.getItem("rc_replica_admin");
@@ -377,6 +391,10 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     safeStorageSet("rc_media_library", mediaLibrary);
   }, [mediaLibrary]);
+
+  useEffect(() => {
+    safeStorageSet("rc_footer_settings", footerSettings);
+  }, [footerSettings]);
 
   useEffect(() => {
     if (adminUser) {
@@ -525,6 +543,30 @@ export const AppProvider = ({ children }) => {
     }
     if (prod.imageData && typeof prod.imageData === "string") {
       doc.imageData = prod.imageData;
+    }
+    if (prod.recipients && Array.isArray(prod.recipients)) {
+      doc.recipients = prod.recipients;
+    }
+    if (prod.occasions && Array.isArray(prod.occasions)) {
+      doc.occasions = prod.occasions;
+    }
+    if (prod.isRental != null) {
+      doc.isRental = Boolean(prod.isRental);
+    }
+    if (prod.rentalCategory) {
+      doc.rentalCategory = String(prod.rentalCategory);
+    }
+    if (prod.rangoliSubcategory) {
+      doc.rangoliSubcategory = String(prod.rangoliSubcategory);
+    }
+    if (prod.rentalUnit) {
+      doc.rentalUnit = String(prod.rentalUnit);
+    }
+    if (prod.securityDeposit != null && !isNaN(Number(prod.securityDeposit))) {
+      doc.securityDeposit = Number(prod.securityDeposit);
+    }
+    if (prod.rentalDuration) {
+      doc.rentalDuration = String(prod.rentalDuration);
     }
     return doc;
   };
@@ -1050,6 +1092,16 @@ export const AppProvider = ({ children }) => {
     showToast("Home page section order updated!");
   };
 
+  // Footer Content Management (Stored locally in rc_footer_settings)
+  const updateFooterSettings = (newFooterData) => {
+    setFooterSettings((prev) => ({
+      ...prev,
+      ...newFooterData,
+      lastUpdated: new Date().toISOString()
+    }));
+    showToast("Footer settings updated successfully!");
+  };
+
   // Media Library Management
   const addMediaItem = (item) => {
     const id = item.id || "media-" + Date.now();
@@ -1447,6 +1499,10 @@ export const AppProvider = ({ children }) => {
         updateHomeSection,
         toggleHomeSection,
         reorderHomeSections,
+
+        // Footer Settings
+        footerSettings,
+        updateFooterSettings,
 
         // Media Library
         mediaLibrary,

@@ -16,6 +16,8 @@ import {
   Image as ImageIcon,
   RefreshCw,
   Sliders,
+  PanelBottom,
+  Film,
   Compass
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
@@ -47,9 +49,11 @@ export const AdminLayout = () => {
       group: "Website Content",
       items: [
         { name: "Website Menu Pages", path: "/admin/pages", icon: Compass },
+        { name: "Hero Section", path: "/admin/hero", icon: Film },
         { name: "Home Page Sections", path: "/admin/home-sections", icon: Layers },
+        { name: "Footer Management", path: "/admin/footer", icon: PanelBottom },
         { name: "Media & Images", path: "/admin/media", icon: ImageIcon },
-        { name: "Brand Settings", path: "/admin/content", icon: Settings }
+        { name: "Brand & Settings", path: "/admin/content", icon: Settings }
       ]
     }
   ];
