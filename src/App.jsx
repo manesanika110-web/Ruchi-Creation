@@ -46,10 +46,10 @@ import { AdminContent } from "./pages/admin/AdminContent";
 // Storefront layout wrapper
 const StoreLayout = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-[#F5EEDC] w-full overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-[#F5EEDC] w-full">
       <Navbar />
       <AuthModal />
-      <main className="flex-grow w-full overflow-x-hidden">
+      <main className="flex-grow w-full">
         <Outlet />
       </main>
       <Footer />

@@ -238,14 +238,14 @@ export const ShopByCategory = () => {
       <div className="max-w-[1380px] mx-auto px-3.5 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* Main Two-Column Layout: Categories Sidebar (Left) + Handcrafted Gifts Cards (Right) */}
-        <div className="flex flex-col lg:flex-row gap-6 md:gap-7 lg:gap-8 items-start">
+        <div className="flex flex-col md:flex-row gap-5 lg:gap-8 items-start">
 
           {/* =========================================================
-              MOBILE CATEGORY DROPDOWN (Shown on screens < lg)
+              MOBILE CATEGORY DROPDOWN (Shown on phones < md)
               - Tap to open/close category selection
               - Automatically closes when user taps any category
              ========================================================= */}
-          <div className="lg:hidden w-full bg-[#FAF5EB] rounded-2xl border border-[#E5DAC8] p-3 sm:p-4 shadow-xs text-left">
+          <div className="md:hidden w-full bg-[#FAF5EB] rounded-2xl border border-[#E5DAC8] p-3 sm:p-4 shadow-xs text-left">
             <button
               type="button"
               onClick={() => setMobileCategoryOpen((prev) => !prev)}
@@ -328,11 +328,11 @@ export const ShopByCategory = () => {
           </div>
 
           {/* =========================================================
-              DESKTOP LEFT SIDEBAR: Fixed & Independently Scrollable Categories (Hidden on mobile < lg)
-              - lg:sticky lg:top-24 self-start: Keeps sidebar fixed when scrolling product cards
+              DESKTOP & TABLET LEFT SIDEBAR: Fixed & Independently Scrollable Categories (Visible on Tablet md: and Laptop lg:)
+              - sticky top-24 self-start: Keeps sidebar fixed when scrolling product cards
               - max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain: Scrolls independently without scrolling the page
              ========================================================= */}
-          <aside className="hidden lg:block w-64 xl:w-72 shrink-0 lg:sticky lg:top-24 self-start bg-[#FAF5EB] rounded-2xl border border-[#E5DAC8] p-4 sm:p-5 shadow-xs max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain z-20 space-y-3.5 text-left">
+          <aside className="hidden md:block w-56 lg:w-64 xl:w-72 shrink-0 sticky top-24 self-start bg-[#FAF5EB] rounded-2xl border border-[#E5DAC8] p-4 sm:p-5 shadow-xs max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain z-20 space-y-3.5 text-left">
             {/* Sidebar Header */}
             <div className="border-b border-[#E5DAC8] pb-3">
               <div className="flex items-center justify-between gap-2">

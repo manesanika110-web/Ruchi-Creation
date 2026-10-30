@@ -78,8 +78,8 @@ export const Shop = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left Sidebar: Categories (~3 cols) */}
-          <aside className="lg:col-span-3 bg-[#FAF5EB] rounded-2xl border border-[#E5DAC8] p-5 text-left shadow-xs space-y-4">
+          {/* Left Sidebar: Categories (~3 cols, Sticky on Scroll) */}
+          <aside className="lg:col-span-3 lg:sticky lg:top-24 self-start bg-[#FAF5EB] rounded-2xl border border-[#E5DAC8] p-5 text-left shadow-xs space-y-4 max-h-[calc(100vh-7rem)] overflow-y-auto">
             <h3 className="font-serif font-bold text-base text-[#3B1822] border-b border-[#E5DAC8]/80 pb-2">
               Categories
             </h3>

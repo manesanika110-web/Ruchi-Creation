@@ -696,13 +696,13 @@ export const RentProducts = () => {
           </div>
 
           {/* Two-Column Content: Sidebar (Left) + Product Cards Grid (Right) */}
-          <div className="flex flex-col lg:flex-row gap-6 md:gap-7 items-start">
+          <div className="flex flex-col md:flex-row gap-5 lg:gap-7 items-start">
 
             {/* =========================================================
-                MOBILE CATEGORY DROPDOWN (Shown on screens < lg)
+                MOBILE CATEGORY DROPDOWN (Shown on phones < md)
                 - Automatically closes when user selects a category/subcategory
                ========================================================= */}
-            <div className="lg:hidden w-full bg-[#FBF1F3] rounded-2xl p-3 border border-[#F3DEE3] text-left">
+            <div className="md:hidden w-full bg-[#FBF1F3] rounded-2xl p-3 border border-[#F3DEE3] text-left">
               <button
                 type="button"
                 onClick={() => setMobileCategoryOpen((prev) => !prev)}
@@ -824,8 +824,8 @@ export const RentProducts = () => {
               )}
             </div>
 
-            {/* Desktop Category Sidebar (Hidden on mobile < lg, Fixed on Scroll via lg:sticky lg:top-24 self-start) */}
-            <aside className="hidden lg:block w-48 xl:w-52 shrink-0 lg:sticky lg:top-24 self-start bg-[#FBF1F3] rounded-2xl p-3 border border-[#F3DEE3]/70 z-20">
+            {/* Desktop & Tablet Category Sidebar (Visible on Tablet md: and Laptop lg:, Fixed on Scroll) */}
+            <aside className="hidden md:block w-40 lg:w-48 xl:w-52 shrink-0 sticky top-24 self-start bg-[#FBF1F3] rounded-2xl p-3 border border-[#F3DEE3]/70 z-20 max-h-[calc(100vh-7rem)] overflow-y-auto">
               <div className="flex flex-col gap-1">
                 {rentalCategories.map((cat) => {
                   const isActive = selectedCategory === cat.id;
