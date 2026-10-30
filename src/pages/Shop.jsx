@@ -60,7 +60,7 @@ export const Shop = () => {
 
   return (
     <div className="bg-transparent text-[#3B1822]">
-      
+
       {/* 1. Header Banner */}
       <section className="relative w-full py-16 sm:py-20 bg-cover bg-center overflow-hidden flex items-center justify-center text-center" style={{ backgroundImage: "url('/reference-assets/hero-banner.jpg')", backgroundRepeat: "no-repeat" }}>
         <div className="absolute inset-0 bg-black/40"></div>
@@ -77,7 +77,7 @@ export const Shop = () => {
       {/* 2. Main Shop Layout with Sidebar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Left Sidebar: Categories (~3 cols, Sticky on Scroll) */}
           <aside className="lg:col-span-3 lg:sticky lg:top-24 self-start bg-[#FAF5EB] rounded-2xl border border-[#E5DAC8] p-5 text-left shadow-xs space-y-4 max-h-[calc(100vh-7rem)] overflow-y-auto">
             <h3 className="font-serif font-bold text-base text-[#3B1822] border-b border-[#E5DAC8]/80 pb-2">
@@ -90,11 +90,10 @@ export const Shop = () => {
                   setCategory("All");
                   setSearchParams({});
                 }}
-                className={`w-full text-left py-2 px-3 rounded-lg font-medium transition-colors flex items-center justify-between ${
-                  category === "All"
+                className={`w-full text-left py-2 px-3 rounded-lg font-medium transition-colors flex items-center justify-between ${category === "All"
                     ? "bg-[#632736] text-white font-bold"
                     : "text-gray-700 hover:bg-white/80"
-                }`}
+                  }`}
               >
                 <span>All Categories</span>
                 {category === "All" && <ChevronRight className="w-3.5 h-3.5" />}
@@ -107,11 +106,10 @@ export const Shop = () => {
                     setCategory(cat);
                     setSearchParams({ category: cat });
                   }}
-                  className={`w-full text-left py-2 px-3 rounded-lg font-medium transition-colors flex items-center justify-between ${
-                    category === cat
+                  className={`w-full text-left py-2 px-3 rounded-lg font-medium transition-colors flex items-center justify-between ${category === cat
                       ? "bg-[#632736] text-white font-bold"
                       : "text-gray-700 hover:bg-white/80"
-                  }`}
+                    }`}
                 >
                   <span className="truncate">{cat}</span>
                   {category === cat && <ChevronRight className="w-3.5 h-3.5" />}
@@ -122,7 +120,7 @@ export const Shop = () => {
 
           {/* Right Main Grid (~9 cols) */}
           <main className="lg:col-span-9 space-y-6">
-            
+
             {/* Search and Sort Toolbar */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#FAF5EB] p-3 rounded-xl border border-[#E5DAC8]">
               <div className="relative w-full sm:w-72">
@@ -173,25 +171,22 @@ export const Shop = () => {
               </button>
               <button
                 onClick={() => setCurrentPage(1)}
-                className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                  currentPage === 1 ? "bg-[#632736] text-white" : "border border-[#E5DAC8] bg-white text-gray-700"
-                }`}
+                className={`w-7 h-7 rounded-lg flex items-center justify-center ${currentPage === 1 ? "bg-[#632736] text-white" : "border border-[#E5DAC8] bg-white text-gray-700"
+                  }`}
               >
                 1
               </button>
               <button
                 onClick={() => setCurrentPage(2)}
-                className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                  currentPage === 2 ? "bg-[#632736] text-white" : "border border-[#E5DAC8] bg-white text-gray-700"
-                }`}
+                className={`w-7 h-7 rounded-lg flex items-center justify-center ${currentPage === 2 ? "bg-[#632736] text-white" : "border border-[#E5DAC8] bg-white text-gray-700"
+                  }`}
               >
                 2
               </button>
               <button
                 onClick={() => setCurrentPage(3)}
-                className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                  currentPage === 3 ? "bg-[#632736] text-white" : "border border-[#E5DAC8] bg-white text-gray-700"
-                }`}
+                className={`w-7 h-7 rounded-lg flex items-center justify-center ${currentPage === 3 ? "bg-[#632736] text-white" : "border border-[#E5DAC8] bg-white text-gray-700"
+                  }`}
               >
                 3
               </button>

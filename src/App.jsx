@@ -62,69 +62,69 @@ export function App() {
     <ErrorBoundary>
       <AppProvider>
         <BrowserRouter>
-        <Routes>
-          {/* Storefront Routes */}
-          <Route path="/" element={<StoreLayout />}>
-            <Route index element={<Home />} />
-            <Route path="about" element={<About />} />
-            <Route path="customize-gifts" element={<CustomizeGifts />} />
-            <Route path="customize" element={<CustomizeGifts />} />
-            <Route path="shop-by-category" element={<ShopByCategory />} />
-            <Route path="shop-gifts" element={<ShopByCategory />} />
-            <Route path="categories" element={<ShopByCategory />} />
-            <Route path="by-recipient" element={<ByRecipient />} />
-            <Route path="recipient" element={<ByRecipient />} />
-            <Route path="by-occasion" element={<ByOccasion />} />
-            <Route path="occasion" element={<ByOccasion />} />
-            <Route path="featured-products" element={<FeaturedProducts />} />
-            <Route path="featured" element={<FeaturedProducts />} />
-            <Route path="product-gallery" element={<ProductGallery />} />
-            <Route path="gallery" element={<ProductGallery />} />
-            <Route path="rent" element={<RentProducts />} />
-            <Route path="rent-products" element={<RentProducts />} />
-            <Route path="wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
-            <Route path="my-favourite-list" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
-            <Route path="favourites" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
-            <Route path="shop" element={<ShopByCategory />} />
-            <Route path="product/:id" element={<ProductDetails />} />
-            <Route path="cart" element={<Cart />} />
-            <Route path="checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-            <Route path="order-confirmation/:orderId" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
-            <Route path="my-profile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
-            <Route path="profile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
-            <Route path="my-orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
-            <Route path="contact" element={<Contact />} />
-            <Route path="my-account" element={<ProtectedRoute><UserPanel /></ProtectedRoute>} />
-            <Route path="dashboard" element={<ProtectedRoute><UserPanel /></ProtectedRoute>} />
-            <Route path="register" element={<AuthPage initialMode="register" />} />
-            <Route path="login" element={<AuthPage initialMode="login" />} />
-            <Route path="auth" element={<AuthPage initialMode="register" />} />
-          </Route>
+          <Routes>
+            {/* Storefront Routes */}
+            <Route path="/" element={<StoreLayout />}>
+              <Route index element={<Home />} />
+              <Route path="about" element={<About />} />
+              <Route path="customize-gifts" element={<CustomizeGifts />} />
+              <Route path="customize" element={<CustomizeGifts />} />
+              <Route path="shop-by-category" element={<ShopByCategory />} />
+              <Route path="shop-gifts" element={<ShopByCategory />} />
+              <Route path="categories" element={<ShopByCategory />} />
+              <Route path="by-recipient" element={<ByRecipient />} />
+              <Route path="recipient" element={<ByRecipient />} />
+              <Route path="by-occasion" element={<ByOccasion />} />
+              <Route path="occasion" element={<ByOccasion />} />
+              <Route path="featured-products" element={<FeaturedProducts />} />
+              <Route path="featured" element={<FeaturedProducts />} />
+              <Route path="product-gallery" element={<ProductGallery />} />
+              <Route path="gallery" element={<ProductGallery />} />
+              <Route path="rent" element={<RentProducts />} />
+              <Route path="rent-products" element={<RentProducts />} />
+              <Route path="wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+              <Route path="my-favourite-list" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+              <Route path="favourites" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+              <Route path="shop" element={<ShopByCategory />} />
+              <Route path="product/:id" element={<ProductDetails />} />
+              <Route path="cart" element={<Cart />} />
+              <Route path="checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+              <Route path="order-confirmation/:orderId" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
+              <Route path="my-profile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
+              <Route path="profile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
+              <Route path="my-orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
+              <Route path="contact" element={<Contact />} />
+              <Route path="my-account" element={<ProtectedRoute><UserPanel /></ProtectedRoute>} />
+              <Route path="dashboard" element={<ProtectedRoute><UserPanel /></ProtectedRoute>} />
+              <Route path="register" element={<AuthPage initialMode="register" />} />
+              <Route path="login" element={<AuthPage initialMode="login" />} />
+              <Route path="auth" element={<AuthPage initialMode="register" />} />
+            </Route>
 
-          {/* Dedicated Admin Panel Routes */}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="orders" element={<AdminOrders />} />
-            <Route path="products" element={<AdminProducts />} />
-            <Route path="customers" element={<AdminCustomers />} />
-            <Route path="enquiries" element={<AdminEnquiries />} />
-            <Route path="pages" element={<AdminPages />} />
-            <Route path="hero" element={<AdminHero />} />
-            <Route path="home-sections" element={<AdminHomeSections />} />
-            <Route path="footer" element={<AdminFooter />} />
-            <Route path="media" element={<AdminMedia />} />
-            <Route path="content" element={<AdminContent />} />
-            <Route path="settings" element={<AdminContent />} />
-          </Route>
+            {/* Dedicated Admin Panel Routes */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="customers" element={<AdminCustomers />} />
+              <Route path="enquiries" element={<AdminEnquiries />} />
+              <Route path="pages" element={<AdminPages />} />
+              <Route path="hero" element={<AdminHero />} />
+              <Route path="home-sections" element={<AdminHomeSections />} />
+              <Route path="footer" element={<AdminFooter />} />
+              <Route path="media" element={<AdminMedia />} />
+              <Route path="content" element={<AdminContent />} />
+              <Route path="settings" element={<AdminContent />} />
+            </Route>
 
-          {/* Fallback route */}
-          <Route path="*" element={<StoreLayout />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </AppProvider>
-  </ErrorBoundary>
+            {/* Fallback route */}
+            <Route path="*" element={<StoreLayout />}>
+              <Route index element={<Home />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AppProvider>
+    </ErrorBoundary>
   );
 }
 
